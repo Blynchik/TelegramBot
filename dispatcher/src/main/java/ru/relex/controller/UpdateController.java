@@ -40,7 +40,7 @@ public class UpdateController {
         //сообщения из каналов или групп и др.)
         //бдуем обрабатывать только первичные неизмененные сообщения
         //если приходит иной тип сообщения, то записываем в лог
-        if(update.getMessage() != null){
+        if(update.hasMessage()){
             distributeMessagesByType(update);
         } else {
             log.error("Unsupported message type received" + update);
@@ -54,11 +54,11 @@ public class UpdateController {
     private void distributeMessagesByType(Update update) {
         var message = update.getMessage();
 
-        if(message.getText()!=null){
+        if(message.hasText()){
             processTextMessage(update);
-        } else if (message.getDocument()!=null){
+        } else if (message.hasDocument()){
             processDocMessage(update);
-        } else if (message.getPhoto() != null){
+        } else if (message.hasPhoto()){
             processPhotoMessage(update);
         } else {
             setUnsupportedMessageTypeView(update);
