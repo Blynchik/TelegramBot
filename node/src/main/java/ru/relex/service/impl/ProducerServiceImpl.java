@@ -9,15 +9,14 @@ import static ru.relex.model.RabbitQueue.ANSWER_MESSAGE;
 
 @Service
 public class ProducerServiceImpl implements ProducerService {
-
     private final RabbitTemplate rabbitTemplate;
 
     public ProducerServiceImpl(RabbitTemplate rabbitTemplate) {
-        this.rabbitTemplate = rabbitTemplate;
+	this.rabbitTemplate = rabbitTemplate;
     }
 
     @Override
-    public void produceAnswer(SendMessage sendMessage) {
+    public void producerAnswer(SendMessage sendMessage) {
         rabbitTemplate.convertAndSend(ANSWER_MESSAGE, sendMessage);
     }
 }

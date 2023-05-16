@@ -1,7 +1,6 @@
 package ru.relex.controller;
 
 import lombok.extern.log4j.Log4j;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -14,19 +13,14 @@ import javax.annotation.PostConstruct;
 @Component
 @Log4j
 public class TelegramBot extends TelegramLongPollingBot {
-
     @Value("${bot.name}")
     private String botName;
-
     @Value("${bot.token}")
     private String botToken;
+    private final UpdateController updateController;
 
-//    private static final Logger log = Logger.getLogger(TelegramBot.class);
-
-    private UpdateController updateController;
-
-    public TelegramBot(UpdateController updateController){
-        this.updateController = updateController;
+    public TelegramBot(UpdateController updateController) {
+	this.updateController = updateController;
     }
 
     @PostConstruct
@@ -36,12 +30,12 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return  botName;
+	return botName;
     }
 
     @Override
     public String getBotToken() {
-        return botToken;
+	return botToken;
     }
 
     @Override
@@ -49,11 +43,11 @@ public class TelegramBot extends TelegramLongPollingBot {
         updateController.processUpdate(update);
     }
 
-    public void sendAnswerMessage(SendMessage message){
-        if(message != null){
-            try{
+    public void sendAnswerMessage(SendMessage message) {
+        if (message != null) {
+            try {
                 execute(message);
-            } catch (TelegramApiException e){
+            } catch (TelegramApiException e) {
                 log.error(e);
             }
         }
