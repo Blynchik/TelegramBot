@@ -1,4 +1,5 @@
 package ru.relex.service.impl;
+
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -7,6 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import ru.relex.dao.AppUserDAO;
 import ru.relex.dao.RawDataDAO;
 import ru.relex.entity.AppDocument;
+import ru.relex.entity.AppPhoto;
 import ru.relex.entity.AppUser;
 import ru.relex.entity.RawData;
 import ru.relex.exceptions.UploadFileException;
@@ -59,6 +61,7 @@ public class MainServiceImpl implements MainService {
         var chatId = update.getMessage().getChatId();
         sendAnswer(output, chatId);
     }
+
     @Override
     public void processDocMessage(Update update) {
         saveRawData(update);
@@ -90,10 +93,17 @@ public class MainServiceImpl implements MainService {
             return;
         }
 
-        //TODO добавить сохранения фото :)
-        var answer = "Фото успешно загружено! "
-                + "Ссылка для скачивания: http://test.ru/get-photo/777";
-        sendAnswer(answer, chatId);
+        try {
+            AppPhoto photo = fileService.processPhoto(update.getMessage());
+            //TODO добавить генерацию ссылки для скачивания фото
+            var answer = "Фото успешно загружено! "
+                    + "Ссылка для скачивания: http://test.ru/get-photo/777";
+            sendAnswer(answer, chatId);
+        } catch (UploadFileException ex) {
+            log.error(ex);
+            String error = "К сожалению, загрузка фото не удалась. Повторите попытку позже.";
+            sendAnswer(error, chatId);
+        }
     }
 
     private boolean isNotAllowToSendContent(Long chatId, AppUser appUser) {
@@ -110,6 +120,7 @@ public class MainServiceImpl implements MainService {
         }
         return false;
     }
+
     private void sendAnswer(String output, Long chatId) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
@@ -130,16 +141,19 @@ public class MainServiceImpl implements MainService {
             return "Неизвестная команда! Чтобы посмотреть список доступных команд введите /help";
         }
     }
+
     private String help() {
         return "Список доступных команд:\n"
                 + "/cancel - отмена выполнения текущей команды;\n"
                 + "/registration - регистрация пользователя.";
     }
+
     private String cancelProcess(AppUser appUser) {
         appUser.setState(BASIC_STATE);
         appUserDAO.save(appUser);
         return "Команда отменена!";
     }
+
     private AppUser findOrSaveAppUser(Update update) {
         User telegramUser = update.getMessage().getFrom();
         AppUser persistentAppUser = appUserDAO.findAppUserByTelegramUserId(telegramUser.getId());
@@ -157,6 +171,7 @@ public class MainServiceImpl implements MainService {
         }
         return persistentAppUser;
     }
+
     private void saveRawData(Update update) {
         RawData rawData = RawData.builder()
                 .event(update)
