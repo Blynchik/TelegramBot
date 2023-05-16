@@ -13,7 +13,7 @@ public enum ServiceCommand {
 
     @Override
     public String toString() {
-	return value;
+        return value;
     }
 
     public static ServiceCommand fromValue(String v) {

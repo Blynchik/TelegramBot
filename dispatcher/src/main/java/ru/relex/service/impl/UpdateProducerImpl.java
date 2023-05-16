@@ -9,9 +9,10 @@ import ru.relex.service.UpdateProducer;
 @Service
 @Log4j
 public class UpdateProducerImpl implements UpdateProducer {
+
     private final RabbitTemplate rabbitTemplate;
 
-    public UpdateProducerImpl(RabbitTemplate rabbitTemplate) {
+    public UpdateProducerImpl(RabbitTemplate rabbitTemplate){
         this.rabbitTemplate = rabbitTemplate;
     }
 

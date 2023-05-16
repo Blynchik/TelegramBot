@@ -1,5 +1,6 @@
 package ru.relex.service.impl;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,20 +14,21 @@ import java.util.HashSet;
 import java.util.Set;
 
 @SpringBootTest
-class MainServiceImplTest {
+public class MainServiceImplTest {
+
     @Autowired
     private RawDataDAO rawDataDAO;
 
     @Test
-    public void testSaveRawData() {
+    public void testSaveRawData(){
         Update update = new Update();
         Message msg = new Message();
-        msg.setText("ololo");
+        msg.setText("testMsg");
         update.setMessage(msg);
 
         RawData rawData = RawData.builder()
-                        .event(update)
-                        .build();
+                .event(update)
+                .build();
         Set<RawData> testData = new HashSet<>();
 
         testData.add(rawData);

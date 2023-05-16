@@ -48,8 +48,8 @@ public class FileServiceImpl implements FileService {
                     .getString("file_path"));
             byte[] fileInByte = downloadFile(filePath);
             BinaryContent transientBinaryContent = BinaryContent.builder()
-                            .fileAsArrayOfBytes(fileInByte)
-                            .build();
+                    .fileAsArrayOfBytes(fileInByte)
+                    .build();
             BinaryContent persistentBinaryContent = binaryContentDAO.save(transientBinaryContent);
             Document telegramDoc = telegramMessage.getDocument();
             AppDocument transientAppDoc = buildTransientAppDoc(telegramDoc, persistentBinaryContent);
@@ -61,12 +61,12 @@ public class FileServiceImpl implements FileService {
 
     private AppDocument buildTransientAppDoc(Document telegramDoc, BinaryContent persistentBinaryContent) {
         return AppDocument.builder()
-                        .telegramFileId(telegramDoc.getFileId())
-                        .docName(telegramDoc.getFileName())
-                        .binaryContent(persistentBinaryContent)
-                        .mimeType(telegramDoc.getMimeType())
-                        .fileSize(telegramDoc.getFileSize())
-                        .build();
+                .telegramFileId(telegramDoc.getFileId())
+                .docName(telegramDoc.getFileName())
+                .binaryContent(persistentBinaryContent)
+                .mimeType(telegramDoc.getMimeType())
+                .fileSize(telegramDoc.getFileSize())
+                .build();
     }
 
     private ResponseEntity<String> getFilePath(String fileId) {
