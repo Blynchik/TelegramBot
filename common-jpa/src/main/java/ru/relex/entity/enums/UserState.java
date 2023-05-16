@@ -1,4 +1,4 @@
-package ru.relex.entity;
+package ru.relex.entity.enums;
 
 public enum UserState {
     BASIC_STATE,
