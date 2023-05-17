@@ -17,6 +17,8 @@ import ru.relex.entity.AppPhoto;
 import ru.relex.entity.BinaryContent;
 import ru.relex.exceptions.UploadFileException;
 import ru.relex.service.FileService;
+import ru.relex.service.enums.LinkType;
+import ru.relex.utils.CryptoTool;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,16 +34,21 @@ public class FileServiceImpl implements FileService {
     private String fileInfoUri;
     @Value("${service.file_storage.uri}")
     private String fileStorageUri;
+    @Value("${link.address}")
+    private String linkAddress;
     private final AppDocumentDAO appDocumentDAO;
     private final AppPhotoDAO appPhotoDAO;
     private final BinaryContentDAO binaryContentDAO;
+    private  final CryptoTool cryptoTool;
 
     public FileServiceImpl(AppDocumentDAO appDocumentDAO,
                            BinaryContentDAO binaryContentDAO,
-                           AppPhotoDAO appPhotoDAO) {
+                           AppPhotoDAO appPhotoDAO,
+                           CryptoTool cryptoTool) {
         this.appDocumentDAO = appDocumentDAO;
         this.binaryContentDAO = binaryContentDAO;
         this.appPhotoDAO = appPhotoDAO;
+        this.cryptoTool = cryptoTool;
     }
 
     @Override
@@ -60,9 +67,14 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public AppPhoto processPhoto(Message telegramMessage) {
+        //tg хранит информацию о сохраненных картинках в нескольких форматах
+        //выбираем самый последний, это нормальный формат
+        var photoSizeCount = telegramMessage.getPhoto().size();
+        var photoIndex = photoSizeCount>1? telegramMessage.getPhoto().size()-1:0;
+
         //Хранит в себе альбом отправленнхы фотографий, на данный момент обрабатываем только одну
         //TODO пока что обрабатываем только первое фото в сообщении
-        PhotoSize telegramPhoto = telegramMessage.getPhoto().get(0);
+        PhotoSize telegramPhoto = telegramMessage.getPhoto().get(photoIndex);
         String fileId = telegramPhoto.getFileId();
         ResponseEntity<String> response = getFilePath(fileId);
         if (response.getStatusCode() == HttpStatus.OK) {
@@ -72,6 +84,13 @@ public class FileServiceImpl implements FileService {
         } else {
             throw new UploadFileException("Bad response from telegram service: " + response);
         }
+    }
+
+    @Override
+    //метод получает зашифрованный id и вставляет его в ссылку
+    public String generateLink(Long docId, LinkType linkType) {
+        var hash = cryptoTool.hashOf(docId);
+        return "http://"+linkAddress+"/"+linkType+"?id="+hash;
     }
 
     private AppPhoto buildTransientAppPhoto(PhotoSize telegramPhoto, BinaryContent persistentBinaryContent) {
