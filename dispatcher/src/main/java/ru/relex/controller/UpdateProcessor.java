@@ -4,7 +4,6 @@ import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import ru.relex.service.AnswerConsumer;
 import ru.relex.service.UpdateProducer;
 import ru.relex.util.MessageUtils;
 
@@ -12,14 +11,14 @@ import static ru.relex.model.RabbitQueue.*;
 
 @Component
 @Log4j
-public class UpdateController {
+public class UpdateProcessor {
 
     private TelegramBot telegramBot;
     private MessageUtils messageUtils;
     private final UpdateProducer updateProducer;
 
-    public UpdateController(MessageUtils messageUtils,
-                            UpdateProducer updateProducer) {
+    public UpdateProcessor(MessageUtils messageUtils,
+                           UpdateProducer updateProducer) {
         this.messageUtils = messageUtils;
         this.updateProducer = updateProducer;
     }
